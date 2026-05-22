@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devsu-demo-nodejs
+  namespace: devsu-demo
+  labels:
+    app: devsu-demo-nodejs
+    version: "1.0.0"
+spec:
+  # Minimum 2 replicas as required
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devsu-demo-nodejs
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0   # Zero-downtime deployments
+  template:
+    metadata:
+      labels:
+        app: devsu-demo-nodejs
+    spec:
+      # Security: don't run as root at pod level
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+
+      containers:
+        - name: devsu-demo-nodejs
+          # This placeholder is replaced by the CI/CD pipeline with the real SHA tag
+          image: IMAGE_PLACEHOLDER
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+
+          # Environment from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: devsu-demo-config
+
+          # Sensitive environment from Secret
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: devsu-demo-secret
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: devsu-demo-secret
+                  key: DATABASE_PASSWORD
+
+          # Resource limits — allows HPA to work correctly
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          # Liveness probe — restart container if app is stuck
+          livenessProbe:
+            httpGet:
+              path: /api/users
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe — only route traffic when app is ready
+          readinessProbe:
+            httpGet:
+              path: /api/users
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Volume mount for SQLite data directory
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /app/data
+
+          # Container-level security
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false   # SQLite needs write access to /app/data
+            capabilities:
+              drop:
+                - ALL
+
+      volumes:
+        # emptyDir for SQLite — data is per-pod and ephemeral.
+        # For production, replace with a PersistentVolumeClaim or
+        # migrate to a proper DB (PostgreSQL, etc.)
+        - name: sqlite-data
+          emptyDir: {}
+
+      # Ensure pods spread across nodes for HA
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: devsu-demo-nodejs

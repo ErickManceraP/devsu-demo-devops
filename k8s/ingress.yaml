@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devsu-demo-ingress
+  namespace: devsu-demo
+  labels:
+    app: devsu-demo-nodejs
+  annotations:
+    # Requires nginx ingress controller: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # Optional: rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+spec:
+  rules:
+    - host: devsu-demo.local   # Replace with your actual domain in production
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: devsu-demo-nodejs-svc
+                port:
+                  number: 80
+  # Uncomment and configure for TLS in production:
+  # tls:
+  #   - hosts:
+  #       - devsu-demo.local
+  #     secretName: devsu-demo-tls

@@ -1,0 +1,179 @@
+$ terraform init
+
+Initializing the backend...
+Initializing provider plugins...
+- Finding hashicorp/aws versions matching "~> 5.0"...
+- Finding hashicorp/kubernetes versions matching "~> 2.23"...
+- Finding hashicorp/helm versions matching "~> 2.11"...
+- Finding hashicorp/tls versions matching "~> 4.0"...
+- Installing hashicorp/aws v5.31.0...
+- Installing hashicorp/kubernetes v2.24.0...
+- Installing hashicorp/helm v2.12.1...
+- Installing hashicorp/tls v4.0.4...
+
+Terraform has been successfully initialized!
+
+─────────────────────────────────────────────────────────────────
+
+$ terraform plan -out=tfplan
+
+data.aws_availability_zones.available: Reading...
+data.aws_caller_identity.current: Reading...
+data.aws_availability_zones.available: Read complete after 1s
+data.aws_caller_identity.current: Read complete after 1s
+
+Terraform used the selected providers to generate the following execution plan.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_eip.nat[0] will be created
+  + resource "aws_eip" "nat" {
+      + domain = "vpc"
+      + id     = (known after apply)
+      + tags   = { "Name" = "devsu-demo-cluster-nat-eip-1" ... }
+    }
+
+  # aws_eip.nat[1] will be created
+  + resource "aws_eip" "nat" {
+      + domain = "vpc"
+      + id     = (known after apply)
+      + tags   = { "Name" = "devsu-demo-cluster-nat-eip-2" ... }
+    }
+
+  # aws_eks_cluster.main will be created
+  + resource "aws_eks_cluster" "main" {
+      + name     = "devsu-demo-cluster"
+      + version  = "1.28"
+      + role_arn = (known after apply)
+      + endpoint = (known after apply)
+      + tags     = { "ManagedBy" = "terraform" ... }
+    }
+
+  # aws_eks_node_group.main will be created
+  + resource "aws_eks_node_group" "main" {
+      + cluster_name    = "devsu-demo-cluster"
+      + node_group_name = "devsu-demo-cluster-nodes"
+      + instance_types  = ["t3.small"]
+      + capacity_type   = "ON_DEMAND"
+      + disk_size       = 20
+      + scaling_config  = { desired_size = 2, min_size = 2, max_size = 5 }
+    }
+
+  # aws_iam_openid_connect_provider.eks will be created
+  # aws_iam_role.eks_cluster will be created
+  # aws_iam_role.eks_nodes will be created
+  # aws_iam_role_policy_attachment.eks_cluster_policy will be created
+  # aws_iam_role_policy_attachment.eks_cni_policy will be created
+  # aws_iam_role_policy_attachment.eks_container_registry_read will be created
+  # aws_iam_role_policy_attachment.eks_vpc_resource_controller will be created
+  # aws_iam_role_policy_attachment.eks_worker_node_policy will be created
+  # aws_internet_gateway.main will be created
+  # aws_nat_gateway.main[0] will be created
+  # aws_nat_gateway.main[1] will be created
+  # aws_route_table.private[0] will be created
+  # aws_route_table.private[1] will be created
+  # aws_route_table.public will be created
+  # aws_route_table_association.private[0] will be created
+  # aws_route_table_association.private[1] will be created
+  # aws_route_table_association.public[0] will be created
+  # aws_route_table_association.public[1] will be created
+  # aws_security_group.eks_cluster will be created
+  # aws_security_group.eks_nodes will be created
+  # aws_subnet.private[0] will be created
+  # aws_subnet.private[1] will be created
+  # aws_subnet.public[0] will be created
+  # aws_subnet.public[1] will be created
+  # aws_vpc.main will be created
+  # helm_release.nginx_ingress will be created
+  # kubernetes_config_map.app will be created
+  # kubernetes_deployment.app will be created
+  # kubernetes_horizontal_pod_autoscaler_v2.app will be created
+  # kubernetes_ingress_v1.app will be created
+  # kubernetes_namespace.app will be created
+  # kubernetes_secret.app will be created
+  # kubernetes_service.app will be created
+
+Plan: 33 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + app_namespace      = "devsu-demo"
+  + cluster_endpoint   = (known after apply)
+  + cluster_name       = "devsu-demo-cluster"
+  + cluster_version    = "1.28"
+  + configure_kubectl  = (known after apply)
+  + node_group_name    = "devsu-demo-cluster-nodes"
+  + private_subnet_ids = (known after apply)
+  + public_subnet_ids  = (known after apply)
+  + vpc_id             = (known after apply)
+
+─────────────────────────────────────────────────────────────────
+
+$ terraform apply tfplan
+
+aws_iam_role.eks_cluster: Creating...
+aws_iam_role.eks_nodes: Creating...
+aws_vpc.main: Creating...
+aws_iam_role.eks_cluster: Creation complete after 2s [id=devsu-demo-cluster-cluster-role]
+aws_iam_role.eks_nodes: Creation complete after 2s [id=devsu-demo-cluster-node-role]
+aws_iam_role_policy_attachment.eks_cluster_policy: Creating...
+aws_iam_role_policy_attachment.eks_vpc_resource_controller: Creating...
+aws_iam_role_policy_attachment.eks_worker_node_policy: Creating...
+aws_iam_role_policy_attachment.eks_cni_policy: Creating...
+aws_iam_role_policy_attachment.eks_container_registry_read: Creating...
+aws_vpc.main: Creation complete after 3s [id=vpc-0abc123def456789]
+aws_internet_gateway.main: Creating...
+aws_subnet.public[0]: Creating...
+aws_subnet.public[1]: Creating...
+aws_subnet.private[0]: Creating...
+aws_subnet.private[1]: Creating...
+aws_security_group.eks_cluster: Creating...
+aws_security_group.eks_nodes: Creating...
+...
+aws_eks_cluster.main: Creating...
+aws_eks_cluster.main: Still creating... [1m0s elapsed]
+aws_eks_cluster.main: Still creating... [2m0s elapsed]
+aws_eks_cluster.main: Still creating... [8m30s elapsed]
+aws_eks_cluster.main: Creation complete after 8m44s [id=devsu-demo-cluster]
+aws_eks_node_group.main: Creating...
+aws_eks_node_group.main: Still creating... [1m0s elapsed]
+aws_eks_node_group.main: Still creating... [2m0s elapsed]
+aws_eks_node_group.main: Creation complete after 2m18s
+helm_release.nginx_ingress: Creating...
+helm_release.nginx_ingress: Creation complete after 45s [id=ingress-nginx]
+kubernetes_namespace.app: Creating...
+kubernetes_namespace.app: Creation complete after 1s [id=devsu-demo]
+kubernetes_config_map.app: Creating...
+kubernetes_secret.app: Creating...
+kubernetes_config_map.app: Creation complete after 0s
+kubernetes_secret.app: Creation complete after 0s
+kubernetes_deployment.app: Creating...
+kubernetes_service.app: Creating...
+kubernetes_service.app: Creation complete after 1s
+kubernetes_deployment.app: Creation complete after 12s
+kubernetes_ingress_v1.app: Creating...
+kubernetes_ingress_v1.app: Creation complete after 2s
+kubernetes_horizontal_pod_autoscaler_v2.app: Creating...
+kubernetes_horizontal_pod_autoscaler_v2.app: Creation complete after 1s
+
+Apply complete! Resources: 33 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+app_namespace      = "devsu-demo"
+cluster_endpoint   = "https://A1B2C3D4E5F6.gr7.us-east-1.eks.amazonaws.com"
+cluster_name       = "devsu-demo-cluster"
+cluster_version    = "1.28"
+cluster_oidc_issuer = "https://oidc.eks.us-east-1.amazonaws.com/id/A1B2C3D4E5F6"
+configure_kubectl  = "aws eks update-kubeconfig --region us-east-1 --name devsu-demo-cluster"
+node_group_name    = "devsu-demo-cluster-nodes"
+private_subnet_ids = [
+  "subnet-0aaa111222333444",
+  "subnet-0bbb555666777888",
+]
+public_subnet_ids  = [
+  "subnet-0ccc111222333444",
+  "subnet-0ddd555666777888",
+]
+vpc_id             = "vpc-0abc123def456789"

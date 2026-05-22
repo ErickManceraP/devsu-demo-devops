@@ -1,0 +1,35 @@
+node_modules
+npm-debug.log
+.npm
+coverage
+.nyc_output
+
+# Environment files (use K8s secrets/configmaps in production)
+.env
+
+# SQLite database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Version control
+.git
+.gitignore
+
+# CI/CD
+.github
+
+# Kubernetes manifests (not needed in image)
+k8s
+
+# Docs
+docs
+README.md
+
+# Test files
+*.test.js
+jest.config.*
+
+# OS
+.DS_Store
+Thumbs.db

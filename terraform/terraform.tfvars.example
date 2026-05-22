@@ -1,0 +1,31 @@
+# Copy this file to terraform.tfvars and fill in your values
+# cp terraform.tfvars.example terraform.tfvars
+# NOTE: never commit terraform.tfvars to git (it's in .gitignore)
+
+aws_region      = "us-east-1"
+cluster_name    = "devsu-demo-cluster"
+cluster_version = "1.28"
+
+vpc_cidr        = "10.0.0.0/16"
+private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+
+node_instance_type = "t3.small"
+node_min_size      = 2
+node_max_size      = 5
+node_desired_size  = 2
+
+app_namespace = "devsu-demo"
+app_image     = "ghcr.io/YOUR_GITHUB_USER/devsu-demo-devops-nodejs:latest"
+
+# Sensitive — use environment variables instead in CI/CD:
+# export TF_VAR_db_user="..."
+# export TF_VAR_db_password="..."
+db_user     = "user"
+db_password = "change-me-in-production"
+
+tags = {
+  Project     = "devsu-demo-devops"
+  Environment = "production"
+  ManagedBy   = "terraform"
+}
