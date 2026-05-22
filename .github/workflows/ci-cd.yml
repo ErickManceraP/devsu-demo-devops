@@ -162,53 +162,21 @@ jobs:
           echo "**Digest:** ${{ steps.build-push.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
 
   # ─────────────────────────────────────────
-  # Job 5: Deploy to Kubernetes
-  # Runs only on push to main after docker push
+  # Job 5: Deploy to Kubernetes (local)
+  # El deploy se realiza manualmente desde
+  # Docker Desktop K8s con kubectl apply
   # ─────────────────────────────────────────
   deploy:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
     needs: docker
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment: production
-
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.28.0'
-
-      - name: Configure kubeconfig
+      - name: Deploy info
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-
-      - name: Set image tag in deployment
-        run: |
-          IMAGE_TAG="ghcr.io/${{ github.repository }}:sha-$(echo ${{ github.sha }} | cut -c1-7)"
-          sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_TAG}|g" k8s/deployment.yaml
-
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f k8s/namespace.yaml
-          kubectl apply -f k8s/configmap.yaml
-          kubectl apply -f k8s/secret.yaml
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/ingress.yaml
-          kubectl apply -f k8s/hpa.yaml
-
-      - name: Wait for rollout
-        run: |
-          kubectl rollout status deployment/devsu-demo-nodejs \
-            -n devsu-demo \
-            --timeout=120s
-
-      - name: Deployment summary
-        run: |
-          echo "## Kubernetes Deployment" >> $GITHUB_STEP_SUMMARY
-          kubectl get pods -n devsu-demo >> $GITHUB_STEP_SUMMARY
+          echo "## Kubernetes Deploy" >> $GITHUB_STEP_SUMMARY
+          echo "Deploy is performed locally via Docker Desktop K8s" >> $GITHUB_STEP_SUMMARY
+          echo "Run: kubectl apply -f k8s/" >> $GITHUB_STEP_SUMMARY
