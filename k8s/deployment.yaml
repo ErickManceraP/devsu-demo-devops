@@ -32,7 +32,7 @@ spec:
       containers:
         - name: devsu-demo-nodejs
           # This placeholder is replaced by the CI/CD pipeline with the real SHA tag
-          image: IMAGE_PLACEHOLDER
+          image: ghcr.io/erickmancerap/devsu-demo-devops:latest
           imagePullPolicy: Always
           ports:
             - name: http
