@@ -15,8 +15,8 @@ export const getUser = async (req, res) => {
     try {
         const { id } = req.params
         const user = await User.findByPk(id)
-  
-        if (user == null) {
+
+        if (user === null) {
             return res.status(404).json({ error: 'User not found: ' + id })
         }
 
@@ -32,7 +32,7 @@ export const createUser = async (req, res) => {
         const userRequest = req.body
         const userExist = await User.findOne({ where: { dni: userRequest.dni } })
 
-        if (userExist != null) {
+        if (userExist !== null) {
             return res.status(400).json({ error: 'User already exists: ' + userRequest.dni })
         }
 
