@@ -1,8 +1,8 @@
 [0m[1mInitializing provider plugins found in the configuration...[0m
+- Reusing previous version of hashicorp/helm from the dependency lock file
 - Reusing previous version of hashicorp/tls from the dependency lock file
 - Reusing previous version of hashicorp/aws from the dependency lock file
 - Reusing previous version of hashicorp/kubernetes from the dependency lock file
-- Reusing previous version of hashicorp/helm from the dependency lock file
 - Using previously-installed hashicorp/tls v4.3.0
 - Using previously-installed hashicorp/aws v5.100.0
 - Using previously-installed hashicorp/kubernetes v2.38.0
